@@ -1,0 +1,9 @@
+# collector list for windows_exporter
+# 部署为 windows_exporter 的 --config.file（或用 --collectors.enabled 参数等效）
+# 精简采集器以降低开销；按需增删。
+
+collectors:
+  # 基础采集器（官方默认集）
+  enabled: cpu,memory,logical_disk,physical_disk,net,os,service,system
+  # 说明：windows_exporter v0.31.8 已移除 gpu 采集器，
+  # 如需 GPU 温度/显存监控，需改用 nvidia-smi 的 textfile 方式采集。
