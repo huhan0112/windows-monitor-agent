@@ -1,0 +1,67 @@
+# alert_rules.yml - 阈值告警规则
+# 部署位置：C:\monitoring\prometheus\alert_rules.yml
+# 触发后由 alert-notifier 计划任务轮询 Prometheus /api/v1/alerts 并 QQ 邮件通知。
+# 指标名对应 windows_exporter 默认采集器，见 README。
+
+groups:
+  - name: system
+    rules:
+      - alert: CPUHigh
+        expr: 100 - (avg by (instance) (rate(windows_cpu_time_total{mode="idle"}[3m])) * 100) > 85
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU 持续高载 ({{ $value }}%)"
+
+      - alert: CPUCritical
+        expr: 100 - (avg by (instance) (rate(windows_cpu_time_total{mode="idle"}[3m])) * 100) > 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU 临界 ({{ $value }}%)"
+
+      - alert: MemoryHigh
+        expr: (1 - windows_memory_physical_free_bytes / windows_memory_physical_total_bytes) * 100 > 90
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存占用过高 ({{ $value }}%)"
+
+      - alert: MemoryCritical
+        expr: (1 - windows_memory_physical_free_bytes / windows_memory_physical_total_bytes) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "内存不足 ({{ $value }}%)"
+
+      - alert: DiskAlmostFull
+        expr: (windows_logical_disk_free_bytes / windows_logical_disk_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "磁盘 {{ $labels.volume }} 剩余不足 10%"
+
+  - name: gpu
+    # 注意：windows_exporter v0.31.8 已移除 gpu 采集器，以下规则引用的指标不存在，
+    # 当前不会触发。如需 GPU 监控，先通过 textfile 方式采集 nvidia-smi 指标后再启用。
+    rules:
+      - alert: GPUTempHigh
+        expr: windows_gpu_temperature_celsius > 85
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU 温度过高 ({{ $value }}°C)"
+
+      - alert: GPUMemHigh
+        expr: (windows_gpu_memory_used_bytes / windows_gpu_memory_total_bytes) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU 显存占用过高 ({{ $value }}%)"
