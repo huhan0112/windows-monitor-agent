@@ -1,0 +1,30 @@
+# Prometheus 配置文件
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'windows-server-monitor'
+
+# 加载告警规则
+rule_files:
+  - 'rules/alert_rules.yml'
+
+# 告警管理器配置（如果使用 Alertmanager 则启用）
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['localhost:9093']
+
+# 抓取配置
+scrape_configs:
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:1000']
+
+  # Windows 系统监控
+  - job_name: 'windows'
+    static_configs:
+      - targets: ['localhost:9182']
+        labels:
+          instance: 'windows-server'
