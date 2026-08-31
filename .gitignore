@@ -1,0 +1,18 @@
+# Binaries (downloaded installers / windows_exporter / prometheus)
+bin/*.exe
+
+# Local SMTP credentials (contains email password)
+config/smtp.conf
+
+# Runtime state (alert fingerprints, last-alert cache)
+state/
+
+# Prometheus TSDB data
+prometheus/data/
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
